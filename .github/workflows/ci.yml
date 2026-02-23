@@ -1,0 +1,98 @@
+name: CI - Test & Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # ─────────────────────────────────────────
+  # Test Backend - hanya jika backend berubah
+  # ─────────────────────────────────────────
+  test-backend:
+    name: Test Backend (Go)
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'backend') ||
+      true   # selalu cek, filter di langkah berikut
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cek apakah ada perubahan di backend
+      - name: Check backend changes
+        id: backend-changes
+        uses: tj-actions/changed-files@v44
+        with:
+          files: backend/**
+
+      - name: Setup Go
+        if: steps.backend-changes.outputs.any_changed == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache-dependency-path: backend/go.sum
+
+      - name: Download dependencies
+        if: steps.backend-changes.outputs.any_changed == 'true'
+        working-directory: ./backend
+        run: go mod download
+
+      - name: Run linter
+        if: steps.backend-changes.outputs.any_changed == 'true'
+        uses: golangci/golangci-lint-action@v4
+        with:
+          working-directory: backend
+          version: latest
+
+      - name: Run tests
+        if: steps.backend-changes.outputs.any_changed == 'true'
+        working-directory: ./backend
+        run: go test ./... -v -cover
+
+  # ─────────────────────────────────────────
+  # Test Frontend - hanya jika frontend berubah
+  # ─────────────────────────────────────────
+  test-frontend:
+    name: Test Frontend (Next.js)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check frontend changes
+        id: frontend-changes
+        uses: tj-actions/changed-files@v44
+        with:
+          files: frontend/**
+
+      - name: Setup Node.js
+        if: steps.frontend-changes.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        if: steps.frontend-changes.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run type check
+        if: steps.frontend-changes.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: npm run type-check
+
+      - name: Run lint
+        if: steps.frontend-changes.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build check
+        if: steps.frontend-changes.outputs.any_changed == 'true'
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080

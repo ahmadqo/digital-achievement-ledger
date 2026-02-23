@@ -8,14 +8,14 @@ import (
 type Response struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Errors  interface{} `json:"errors,omitempty"`
+	Data    interface{} `json:"data,omitempty" swaggertype:"object"`
+	Errors  interface{} `json:"errors,omitempty" swaggertype:"object"`
 }
 
 type PaginatedResponse struct {
 	Success    bool        `json:"success"`
 	Message    string      `json:"message"`
-	Data       interface{} `json:"data"`
+	Data       interface{} `json:"data" swaggertype:"array,object"`
 	Pagination *Pagination `json:"pagination"`
 }
 

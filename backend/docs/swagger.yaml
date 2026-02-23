@@ -1,0 +1,849 @@
+basePath: /api/v1
+definitions:
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateAchievementRequest:
+    properties:
+      category_id:
+        type: integer
+      competition_name:
+        type: string
+      description:
+        type: string
+      level_id:
+        type: integer
+      organizer:
+        type: string
+      rank:
+        type: string
+      student_id:
+        type: string
+      year:
+        type: integer
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateCertificateRequest:
+    properties:
+      achievement_ids:
+        description: prestasi yang dimasukkan ke surat
+        items:
+          type: string
+        type: array
+      notes:
+        type: string
+      student_id:
+        type: string
+      valid_until:
+        description: 'format: YYYY-MM-DD, opsional'
+        type: string
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateStudentRequest:
+    properties:
+      birth_date:
+        description: 'format: YYYY-MM-DD'
+        type: string
+      birth_place:
+        type: string
+      class:
+        type: string
+      full_name:
+        type: string
+      gender:
+        description: L | P
+        type: string
+      nisn:
+        type: string
+      year_entry:
+        type: integer
+      year_graduate:
+        type: integer
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.UpdateAchievementRequest:
+    properties:
+      category_id:
+        type: integer
+      competition_name:
+        type: string
+      description:
+        type: string
+      level_id:
+        type: integer
+      organizer:
+        type: string
+      rank:
+        type: string
+      year:
+        type: integer
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.UpdateStudentRequest:
+    properties:
+      birth_date:
+        type: string
+      birth_place:
+        type: string
+      class:
+        type: string
+      full_name:
+        type: string
+      gender:
+        type: string
+      year_entry:
+        type: integer
+      year_graduate:
+        type: integer
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_response.PaginatedResponse:
+    properties:
+      data:
+        items:
+          type: object
+        type: array
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Pagination'
+      success:
+        type: boolean
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_response.Pagination:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total_items:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_response.Response:
+    properties:
+      data:
+        type: object
+      errors:
+        type: object
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a backend server for Digital Achievement Ledger.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Digital Achievement Ledger API
+  version: "1.0"
+paths:
+  /achievements:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of achievements
+      parameters:
+      - description: Filter by student ID
+        in: query
+        name: student_id
+        type: string
+      - description: Search by competition name
+        in: query
+        name: search
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Filter by level ID
+        in: query
+        name: level_id
+        type: integer
+      - description: Filter by year
+        in: query
+        name: year
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all achievements
+      tags:
+      - achievements
+    post:
+      consumes:
+      - application/json
+      description: Create a new achievement record for a student
+      parameters:
+      - description: Achievement creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateAchievementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create an achievement
+      tags:
+      - achievements
+  /achievements/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific achievement and all its attachments
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete an achievement
+      tags:
+      - achievements
+    get:
+      consumes:
+      - application/json
+      description: Get detailed info about a specific achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get achievement by ID
+      tags:
+      - achievements
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Achievement update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.UpdateAchievementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Update an achievement
+      tags:
+      - achievements
+  /achievements/{id}/attachments:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an attachment (image/pdf) for an achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Attachment file (PDF, JPG, PNG)
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Optional label/description for the attachment
+        in: formData
+        name: label
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Upload achievement attachment
+      tags:
+      - achievements
+  /achievements/attachments/{attachmentId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove an attachment from an achievement
+      parameters:
+      - description: Attachment ID
+        in: path
+        name: attachmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete achievement attachment
+      tags:
+      - achievements
+  /achievements/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of available achievement categories (e.g., Akademik,
+        Olahraga)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get achievement categories
+      tags:
+      - achievements
+  /achievements/levels:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of available achievement levels (e.g., Nasional, Provinsi)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get achievement levels
+      tags:
+      - achievements
+  /certificates:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of certificates
+      parameters:
+      - description: Filter by student ID
+        in: query
+        name: student_id
+        type: string
+      - description: Filter by certificate status (active, revoked)
+        in: query
+        name: status
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all certificates
+      tags:
+      - certificates
+    post:
+      consumes:
+      - application/json
+      description: Issue a new certificate for a student with selected achievements
+      parameters:
+      - description: Certificate creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateCertificateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a certificate
+      tags:
+      - certificates
+  /certificates/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a certificate
+      parameters:
+      - description: Certificate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get certificate by ID
+      tags:
+      - certificates
+  /certificates/{id}/download:
+    get:
+      description: Generate and download the PDF for a specific certificate
+      parameters:
+      - description: Certificate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: Certificate PDF file
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Download certificate PDF
+      tags:
+      - certificates
+  /certificates/{id}/revoke:
+    post:
+      consumes:
+      - application/json
+      description: Revoke an issued certificate
+      parameters:
+      - description: Certificate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Revoke a certificate
+      tags:
+      - certificates
+  /students:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of students
+      parameters:
+      - description: Search by NISN or name
+        in: query
+        name: search
+        type: string
+      - description: Filter by class
+        in: query
+        name: class
+        type: string
+      - description: Filter by graduation year
+        in: query
+        name: year_graduate
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all students
+      tags:
+      - students
+    post:
+      consumes:
+      - application/json
+      description: Create a new student record
+      parameters:
+      - description: Student creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.CreateStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a student
+      tags:
+      - students
+  /students/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific student and their associated photo/data
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete a student
+      tags:
+      - students
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a specific student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get student by ID
+      tags:
+      - students
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Student update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.UpdateStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Update a student
+      tags:
+      - students
+  /students/{id}/photo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a JPEG or PNG photo for a student (max 5MB)
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Photo file
+        in: formData
+        name: photo
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Upload student photo
+      tags:
+      - students
+  /verify/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Public verify endpoint for a certificate token
+      parameters:
+      - description: Verification Token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      summary: Verify a certificate
+      tags:
+      - public
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

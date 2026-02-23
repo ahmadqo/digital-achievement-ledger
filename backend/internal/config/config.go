@@ -61,9 +61,9 @@ func Load() *Config {
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
-			User:     getEnv("DB_USER", "skp_user"),
+			User:     getEnv("DB_USER", "dal_user"),
 			Password: getEnv("DB_PASSWORD", ""),
-			Name:     getEnv("DB_NAME", "skp_db"),
+			Name:     getEnv("DB_NAME", "dal_db"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
@@ -75,7 +75,7 @@ func Load() *Config {
 			Endpoint: getEnv("MINIO_ENDPOINT", "localhost:9000"),
 			User:     getEnv("MINIO_USER", "minioadmin"),
 			Password: getEnv("MINIO_PASSWORD", "minioadmin123"),
-			Bucket:   getEnv("MINIO_BUCKET", "skp-attachments"),
+			Bucket:   getEnv("MINIO_BUCKET", "dal-attachments"),
 			UseSSL:   minioSSL,
 		},
 	}

@@ -1,6 +1,12 @@
 # Makefile - shortcut command untuk project SKP
 # Cara pakai: make <command>
 
+# Load .env file agar variabel tersedia di Makefile
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
 .PHONY: help dev prod down logs ps clean
 
 # ─────────────────────────────────────────
@@ -49,7 +55,7 @@ restart-backend:	## Restart backend saja (tanpa rebuild)
 	docker compose restart backend
 
 shell-db:		## Masuk ke psql di container postgres
-	docker compose exec postgres psql -U $${DB_USER} -d $${DB_NAME}
+	docker compose exec postgres psql -U $(DB_USER) -d $(DB_NAME)
 
 shell-backend:		## Masuk ke shell container backend
 	docker compose exec backend sh

@@ -1,0 +1,19 @@
+# Development Dockerfile - pakai Air untuk hot reload
+FROM golang:1.24-alpine
+
+RUN apk add --no-cache git curl tzdata
+
+# Install Air (hot reload tool untuk Go)
+RUN go install github.com/air-verse/air@v1.52.3
+
+WORKDIR /app
+
+COPY go.mod ./
+# go.sum akan dibuat otomatis jika belum ada
+COPY go.su[m] ./
+RUN go mod download || go mod tidy
+
+# Air akan watch perubahan file dan auto restart
+EXPOSE 8080
+
+CMD ["air", "-c", ".air.toml"]

@@ -4,7 +4,7 @@ services:
   # ─────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: skp_postgres
+    container_name: dal_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -16,7 +16,7 @@ services:
     ports:
       - "5432:5432" # buka ke host untuk debugging, tutup di production jika tidak perlu
     networks:
-      - skp_network
+      - dal_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -29,7 +29,7 @@ services:
   # ─────────────────────────────────────────
   minio:
     image: minio/minio:latest
-    container_name: skp_minio
+    container_name: dal_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -42,7 +42,7 @@ services:
       - "9000:9000" # S3 API
       - "9001:9001" # Web Console (MinIO UI)
     networks:
-      - skp_network
+      - dal_network
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 10s
@@ -55,7 +55,7 @@ services:
   # ─────────────────────────────────────────
   minio-init:
     image: minio/mc:latest
-    container_name: skp_minio_init
+    container_name: dal_minio_init
     depends_on:
       minio:
         condition: service_healthy
@@ -71,7 +71,7 @@ services:
         echo 'MinIO bucket ready';
       "
     networks:
-      - skp_network
+      - dal_network
 
   # ─────────────────────────────────────────
   # Backend (Go)
@@ -80,7 +80,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: skp_backend
+    container_name: dal_backend
     restart: unless-stopped
     environment:
       APP_PORT: 8080
@@ -108,33 +108,33 @@ services:
       minio:
         condition: service_healthy
     networks:
-      - skp_network
+      - dal_network
 
   # ─────────────────────────────────────────
   # Frontend (Next.js)
   # ─────────────────────────────────────────
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: skp_frontend
-    restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8080}
-      TZ: Asia/Jakarta
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    networks:
-      - skp_network
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: dal_frontend
+  #   restart: unless-stopped
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8080}
+  #     TZ: Asia/Jakarta
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - dal_network
 
   # ─────────────────────────────────────────
   # Nginx (reverse proxy)
   # ─────────────────────────────────────────
   nginx:
     image: nginx:alpine
-    container_name: skp_nginx
+    container_name: dal_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -142,9 +142,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
-      - frontend
+      # - frontend
     networks:
-      - skp_network
+      - dal_network
 
 # ─────────────────────────────────────────
 # Volumes (data persist walaupun container restart)
@@ -159,5 +159,5 @@ volumes:
 # Network internal antar service
 # ─────────────────────────────────────────
 networks:
-  skp_network:
+  dal_network:
     driver: bridge
