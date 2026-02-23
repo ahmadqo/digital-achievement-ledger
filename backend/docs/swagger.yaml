@@ -55,6 +55,16 @@ definitions:
       year_graduate:
         type: integer
     type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_model.Role:
+    enum:
+    - operator
+    - admin
+    - headmaster
+    type: string
+    x-enum-varnames:
+    - RoleOperator
+    - RoleAdmin
+    - RoleHeadmaster
   github_com_ahmadqo_digital-achievement-ledger_internal_model.UpdateAchievementRequest:
     properties:
       category_id:
@@ -123,6 +133,29 @@ definitions:
         type: string
       success:
         type: boolean
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_service.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_service.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  github_com_ahmadqo_digital-achievement-ledger_internal_service.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_model.Role'
     type: object
 host: localhost:8080
 info:
@@ -438,6 +471,95 @@ paths:
       summary: Get achievement levels
       tags:
       - achievements
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_service.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      summary: User Login
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get details of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_service.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      summary: Refresh Access Token
+      tags:
+      - auth
   /certificates:
     get:
       consumes:
@@ -812,6 +934,38 @@ paths:
       summary: Upload student photo
       tags:
       - students
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user. Only admins or headmasters can access this endpoint.
+      parameters:
+      - description: User registration info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_service.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_ahmadqo_digital-achievement-ledger_internal_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Register a new user
+      tags:
+      - auth
   /verify/{token}:
     get:
       consumes:

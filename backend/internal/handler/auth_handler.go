@@ -19,8 +19,18 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// Login godoc
-// POST /api/v1/auth/login
+// Login allows a user to authenticate
+// @Summary      User Login
+// @Description  Authenticate user with email and password
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      service.LoginRequest  true  "Login credentials"
+// @Success      200      {object}  response.Response
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Failure      403      {object}  response.Response
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req service.LoginRequest
 
@@ -64,9 +74,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	response.Success(w, "Login berhasil", result)
 }
 
-// Register godoc
-// POST /api/v1/auth/register
-// Hanya admin yang bisa register user baru (dikontrol di route)
+// Register creates a new user account (admin/headmaster only)
+// @Summary      Register a new user
+// @Description  Create a new user. Only admins or headmasters can access this endpoint.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request  body      service.RegisterRequest  true  "User registration info"
+// @Success      201      {object}  response.Response
+// @Failure      400      {object}  response.Response
+// @Failure      500      {object}  response.Response
+// @Router       /users [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req service.RegisterRequest
 
@@ -117,8 +136,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	response.Created(w, "User berhasil dibuat", result)
 }
 
-// RefreshToken godoc
-// POST /api/v1/auth/refresh
+// RefreshToken generates a new access token
+// @Summary      Refresh Access Token
+// @Description  Get a new access token using a refresh token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      service.RefreshTokenRequest  true  "Refresh token"
+// @Success      200      {object}  response.Response
+// @Failure      400      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var req service.RefreshTokenRequest
 
@@ -141,8 +169,17 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	response.Success(w, "Token berhasil diperbarui", tokenPair)
 }
 
-// Me godoc
-// GET /api/v1/auth/me (protected)
+// Me gets the profile of the current authenticated user
+// @Summary      Get current user profile
+// @Description  Get details of the currently authenticated user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200      {object}  response.Response
+// @Failure      401      {object}  response.Response
+// @Failure      404      {object}  response.Response
+// @Router       /auth/me [get]
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r.Context())
 	if userID == "" {
